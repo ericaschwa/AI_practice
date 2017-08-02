@@ -23,7 +23,7 @@
 #   3. Python v3.0
 # Fill in your answer in the next line of code ("1", "2", or "3"):
 
-ANSWER_1 = 'fill-me-in'
+ANSWER_1 = 2
 
 
 # Section 2: Programming warmup _____________________________________________
@@ -31,26 +31,33 @@ ANSWER_1 = 'fill-me-in'
 # Problem 2.1: Warm-Up Stretch
 
 def cube(x):
-    raise NotImplementedError
+    return pow(x, 3)
 
 def factorial(x):
-    raise NotImplementedError
+    result = 1
+    for i in xrange(1, x+1):
+	result *= i
+    return result
 
 def count_pattern(pattern, lst):
-    raise NotImplementedError
-
+    occs = [i for i in xrange(len(lst)) if lst[i:i+len(pattern)] == pattern]
+    return len(occs)
 
 # Problem 2.2: Expression depth
 
 def depth(expr):
-    raise NotImplementedError
-
+    max_d = 0
+    if not isinstance(expr, (list, tuple)): return 0
+    for item in expr:
+        d = depth(item)
+        if d > max_d: max_d = d
+    return 1 + max_d
 
 # Problem 2.3: Tree indexing
 
 def tree_ref(tree, index):
-    raise NotImplementedError
-
+    if len(index) == 1: return tree[index[0]]
+    return tree_ref(tree[index[0]], index[1:])
 
 # Section 3: Symbolic algebra
 
@@ -65,13 +72,13 @@ from algebra_utils import distribution, encode_sumprod, decode_sumprod
 # Please answer these questions inside the double quotes.
 
 # When did you take 6.01?
-WHEN_DID_YOU_TAKE_601 = ""
+WHEN_DID_YOU_TAKE_601 = "N/A"
 
 # How many hours did you spend per 6.01 lab?
-HOURS_PER_601_LAB = ""
+HOURS_PER_601_LAB = "N/A"
 
 # How well did you learn 6.01?
-HOW_WELL_I_LEARNED_601 = ""
+HOW_WELL_I_LEARNED_601 = "N/A"
 
 # How many hours did this lab take?
-HOURS = ""
+HOURS = "N/A"
