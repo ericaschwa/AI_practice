@@ -73,7 +73,7 @@ ANSWER_4 = '1'
 
 # Which rule fires second?
 
-ANSWER_5 = "neither; once rule 1 fires, no rule's THEN changes the data"
+ANSWER_5 = '0'
 
 
 # Problem 1.3.1: Poker hands
@@ -253,7 +253,7 @@ from backchain import backchain_to_goal_tree
 ##; Section 3: Survey ##
 # Please answer these questions inside the double quotes.
 
-HOW_MANY_HOURS_THIS_PSET_TOOK = ''
-WHAT_I_FOUND_INTERESTING = ''
-WHAT_I_FOUND_BORING = ''
+HOW_MANY_HOURS_THIS_PSET_TOOK = '4 hrs'
+WHAT_I_FOUND_INTERESTING = 'I enjoyed the process of writing the backchaining function.'
+WHAT_I_FOUND_BORING = 'Answering Section 3 questions.'
 
