@@ -131,8 +131,10 @@ def remove_from_l(l, item):
 ## This function takes in a graph and a list of node names, and returns
 ## the sum of edge lengths along the path -- the total distance in the path.
 def path_length(graph, node_names):
-    raise NotImplementedError
-
+    result = 0
+    for i in xrange(1, len(node_names)):
+        result += graph.get_edge(node_names[i-1], node_names[i]).length
+    return result
 
 def branch_and_bound(graph, start, goal):
     raise NotImplementedError
@@ -147,10 +149,17 @@ def a_star(graph, start, goal):
 ## consistent, but not admissible?
 
 def is_admissible(graph, goal):
-    raise NotImplementedError
+    for n in graph.nodes():
+        real_dist = path_length(graph, branch_and_bound(graph, n, goal))
+        if real_dist < graph.get_heuristic(n, goal): return False
+    return True
 
 def is_consistent(graph, goal):
-    raise NotImplementedError
+    for e in graph.edges():
+        dist1 = graph.get_heuristic(e.node1, goal)
+        dist2 = graph.get_heuristic(e.node2, goal)
+        if e.length < abs(dist1 - dist2): return False
+    return True
 
 HOW_MANY_HOURS_THIS_PSET_TOOK = '4'
 WHAT_I_FOUND_INTERESTING = 'Writing the search functions.'
