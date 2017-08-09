@@ -93,25 +93,37 @@ def hill_climbing(graph, start, goal):
 ## The k top candidates are to be determined using the 
 ## graph get_heuristic function, with lower values being better values.
 def beam_search(graph, start, goal, beam_width):
-# TODO: can have up to k paths AT EACH LEVEL
     paths  = [[start]]
-    levels = {start: 1}
+    path_levels = {1: [[start]]}
     while len(paths) > 0 and paths[-1][-1] != goal:
         path      = paths.pop()
         new_paths = []
         for node in graph.get_connected_nodes(path[-1]):
-            if node not in levels:
-                levels[node] = levels[path[-1]] + 1
-            if node not in path: # and len(path) <= levels[path[-1]]:
+            if node not in path:
                 new_paths[:0] = [path + [node]]
-        keepers = sorted(new_paths + paths,
-                         key=lambda p: graph.get_heuristic(p[-1], goal)*-1)
-        keepers = keepers[len(keepers) - beam_width:]
-        paths   = [p for p in new_paths + paths if p in keepers]
+                level = len(new_paths[0])
+                if level not in path_levels:
+                    path_levels[level] = []
+                path_levels[level].append(new_paths[0])
+                if len(path_levels[level]) > beam_width:
+                    to_remove = max(path_levels[level],
+                                    key=lambda p: graph.get_heuristic(p[-1], goal))
+                    path_levels[level] = remove_from_l(path_levels[level], to_remove)
+                    paths              = remove_from_l(paths,              to_remove)
+                    new_paths          = remove_from_l(new_paths,          to_remove)
+        paths = new_paths + paths
     if len(paths) > 0 and paths[-1][-1] == goal:
         return paths[-1]
     else:
         return []
+
+# Returns given list without given item, assuming no repeat appearances
+def remove_from_l(l, item):
+    try:
+        i = l.index(item)
+        return l[:i] + l[i+1:]
+    except:
+        return l
 
 ## Now we're going to try optimal search.  The previous searches haven't
 ## used edge distances in the calculation.
