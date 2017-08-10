@@ -14,7 +14,7 @@ from util import INFINITY
 #      1. MM will play better than AB.
 #      2. AB will play better than MM.
 #      3. They will play with the same level of skill.
-ANSWER1 = 0
+ANSWER1 = 3
 
 # 1.2. Two computerized players are playing a game with a time limit. Player MM
 # does minimax search with iterative deepening, and player AB does alpha-beta
@@ -24,7 +24,7 @@ ANSWER1 = 0
 #   1. MM will play better than AB.
 #   2. AB will play better than MM.
 #   3. They will play with the same level of skill.
-ANSWER2 = 0
+ANSWER2 = 2
 
 ### 2. Connect Four
 from connectfour import *
@@ -56,8 +56,22 @@ def focused_evaluate(board):
     that board is for the current player.
     A return value >= 1000 means that the current player has won;
     a return value <= -1000 means that the current player has lost
-    """    
-    raise NotImplementedError
+    """
+    if board.is_game_over():
+        if board.is_win() == board.get_current_player_id():
+            score = 1000 + (42 - board.num_tokens_on_board())
+        else:
+            score = -1000 - (42 - board.num_tokens_on_board())
+    else:
+        score = board.longest_chain(board.get_current_player_id()) * 10
+        # Prefer having your pieces in the center of the board.
+        for row in range(6):
+            for col in range(7):
+                if board.get_cell(row, col) == board.get_current_player_id():
+                    score -= abs(3-col)
+                elif board.get_cell(row, col) == board.get_other_player_id():
+                    score += abs(3-col)
+    return score
 
 
 ## Create a "player" function that uses the focused_evaluate function
@@ -67,6 +81,37 @@ quick_to_win_player = lambda board: minimax(board, depth=4,
 ## You can try out your new evaluation function by uncommenting this line:
 #run_game(basic_player, quick_to_win_player)
 
+
+def alpha_beta_find_board_value(alpha, beta, board, depth, eval_fn,
+                                get_next_moves_fn, is_terminal_fn, is_max):
+    """
+    alpha_beta helper function: Return the alpha_beta value of a particular board,
+    given a particular depth to estimate to
+    """
+    if is_terminal_fn(depth, board):
+        return eval_fn(board)
+
+    if is_max:
+        val = NEG_INFINITY
+        for move, new_board in get_next_moves_fn(board):
+            val = max(val,
+                      alpha_beta_find_board_value(alpha, beta, new_board, depth-1,
+                                                  eval_fn, get_next_moves_fn,
+                                                  is_terminal_fn, False))
+            alpha = max(alpha,  val)
+            if beta <= alpha: break
+        return val
+    else:
+        val = INFINITY
+        for move, new_board in get_next_moves_fn(board):
+            val = min(val,
+                      alpha_beta_find_board_value(alpha, beta, new_board, depth-1,
+                                                  eval_fn, get_next_moves_fn,
+                                                  is_terminal_fn, True))
+            beta = min(beta,  val)
+            if beta <= alpha: break
+        return val
+
 ## Write an alpha-beta-search procedure that acts like the minimax-search
 ## procedure, but uses alpha-beta pruning to avoid searching bad ideas
 ## that can't improve the result. The tester will check your pruning by
@@ -75,14 +120,18 @@ quick_to_win_player = lambda board: minimax(board, depth=4,
 ## You can use minimax() in basicplayer.py as an example.
 def alpha_beta_search(board, depth,
                       eval_fn,
-                      # NOTE: You should use get_next_moves_fn when generating
-                      # next board configurations, and is_terminal_fn when
-                      # checking game termination.
-                      # The default functions set here will work
-                      # for connect_four.
                       get_next_moves_fn=get_all_next_moves,
 		      is_terminal_fn=is_terminal):
-    raise NotImplementedError
+    best_val = None
+    for move, new_board in get_next_moves_fn(board):
+        val = alpha_beta_find_board_value(NEG_INFINITY, INFINITY,
+                                          new_board, depth-1, eval_fn,
+                                          get_next_moves_fn,
+                                          is_terminal_fn, False)
+        if best_val is None or val > best_val[0]:
+           best_val = (val, move)
+
+    return best_val[1]
 
 ## Now you should be able to search twice as deep in the same amount of time.
 ## (Of course, this alpha-beta-player won't work until you've defined
@@ -169,12 +218,12 @@ def run_test_tree_search(search, board, depth):
 ## Do you want us to use your code in a tournament against other students? See
 ## the description in the problem set. The tournament is completely optional
 ## and has no effect on your grade.
-COMPETE = (None)
+COMPETE = True
 
 ## The standard survey questions.
-HOW_MANY_HOURS_THIS_PSET_TOOK = ""
-WHAT_I_FOUND_INTERESTING = ""
-WHAT_I_FOUND_BORING = ""
-NAME = ""
-EMAIL = ""
+HOW_MANY_HOURS_THIS_PSET_TOOK = "4"
+WHAT_I_FOUND_INTERESTING = "Solving the problems."
+WHAT_I_FOUND_BORING = "Answering these questions."
+NAME = "Erica Schwartz"
+EMAIL = "erica.schwartz.4@gmail.com"
 
