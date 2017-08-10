@@ -137,11 +137,39 @@ def path_length(graph, node_names):
     return result
 
 def branch_and_bound(graph, start, goal):
-    raise NotImplementedError
+    if start == goal: return [start]
+    paths  = [[start]]
+    while len(paths) > 0:
+        path      = min(paths, key=lambda p: path_length(graph, p))
+        paths.remove(path)
+        new_paths = []
+        for node in graph.get_connected_nodes(path[-1]):
+            if node == goal:
+                return path + [node]
+            if node not in path:
+                new_paths.append(path + [node])
+        paths   = new_paths + paths
+    return []
 
 def a_star(graph, start, goal):
-    raise NotImplementedError
-
+    if start == goal: return [start]
+    paths    = [[start]]
+    extended = set()
+    while len(paths) > 0:
+        path = min(paths,
+                   key=lambda p: path_length(graph, p) + \
+                                 graph.get_heuristic(p[-1], goal))
+        paths.remove(path)
+        if path[-1] in extended: continue
+        extended.add(path[-1])
+        new_paths = []
+        for node in graph.get_connected_nodes(path[-1]):
+            if node == goal:
+                return path + [node]
+            if node not in path:
+                new_paths.append(path + [node])
+        paths   = new_paths + paths
+    return []
 
 ## It's useful to determine if a graph has a consistent and admissible
 ## heuristic.  You've seen graphs with heuristics that are
@@ -149,13 +177,14 @@ def a_star(graph, start, goal):
 ## consistent, but not admissible?
 
 def is_admissible(graph, goal):
-    for n in graph.nodes():
+    for n in graph.nodes:
         real_dist = path_length(graph, branch_and_bound(graph, n, goal))
-        if real_dist < graph.get_heuristic(n, goal): return False
+        if real_dist < graph.get_heuristic(n, goal):
+            return False
     return True
 
 def is_consistent(graph, goal):
-    for e in graph.edges():
+    for e in graph.edges:
         dist1 = graph.get_heuristic(e.node1, goal)
         dist2 = graph.get_heuristic(e.node2, goal)
         if e.length < abs(dist1 - dist2): return False
