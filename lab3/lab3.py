@@ -83,7 +83,7 @@ quick_to_win_player = lambda board: minimax(board, depth=4,
 
 
 def alpha_beta_find_board_value(alpha, beta, board, depth, eval_fn,
-                                get_next_moves_fn, is_terminal_fn, is_max):
+                                get_next_moves_fn, is_terminal_fn):
     """
     alpha_beta helper function: Return the alpha_beta value of a particular board,
     given a particular depth to estimate to
@@ -91,26 +91,18 @@ def alpha_beta_find_board_value(alpha, beta, board, depth, eval_fn,
     if is_terminal_fn(depth, board):
         return eval_fn(board)
 
-    if is_max:
-        val = NEG_INFINITY
-        for move, new_board in get_next_moves_fn(board):
-            val = max(val,
-                      alpha_beta_find_board_value(alpha, beta, new_board, depth-1,
-                                                  eval_fn, get_next_moves_fn,
-                                                  is_terminal_fn, False))
-            alpha = max(alpha,  val)
+    best_val = None
+    for move, new_board in get_next_moves_fn(board):
+        val = -1 * alpha_beta_find_board_value(-1 * beta, -1 * alpha,
+                                               new_board, depth-1, eval_fn,
+                                               get_next_moves_fn,
+                                               is_terminal_fn)
+        if best_val is None or val > best_val:
+            best_val = val
+            if val  >  alpha: alpha = val
             if beta <= alpha: break
-        return val
-    else:
-        val = INFINITY
-        for move, new_board in get_next_moves_fn(board):
-            val = min(val,
-                      alpha_beta_find_board_value(alpha, beta, new_board, depth-1,
-                                                  eval_fn, get_next_moves_fn,
-                                                  is_terminal_fn, True))
-            beta = min(beta,  val)
-            if beta <= alpha: break
-        return val
+
+    return best_val
 
 ## Write an alpha-beta-search procedure that acts like the minimax-search
 ## procedure, but uses alpha-beta pruning to avoid searching bad ideas
@@ -124,10 +116,10 @@ def alpha_beta_search(board, depth,
 		      is_terminal_fn=is_terminal):
     best_val = None
     for move, new_board in get_next_moves_fn(board):
-        val = alpha_beta_find_board_value(NEG_INFINITY, INFINITY,
-                                          new_board, depth-1, eval_fn,
-                                          get_next_moves_fn,
-                                          is_terminal_fn, False)
+        val = -1 * alpha_beta_find_board_value(NEG_INFINITY, INFINITY,
+                                               new_board, depth-1, eval_fn,
+                                               get_next_moves_fn,
+                                               is_terminal_fn)
         if best_val is None or val > best_val[0]:
            best_val = (val, move)
 
@@ -154,13 +146,21 @@ ab_iterative_player = lambda board: \
 ## same depth.
 
 def better_evaluate(board):
-    raise NotImplementedError
+    if board.is_game_over():
+        if   board.is_win() == board.get_current_player_id(): return  10000
+        elif board.is_win() == board.get_other_player_id()  : return -10000
+        else: return 0
+    ours      = board.chain_cells(board.get_current_player_id())
+    our_pts   = sum([pow(4, len(chain)) for chain in ours])
+    theirs    = board.chain_cells(board.get_other_player_id())
+    their_pts = sum([pow(4, len(chain)) for chain in theirs])
+    return our_pts - their_pts
 
 # Comment this line after you've fully implemented better_evaluate
-better_evaluate = memoize(basic_evaluate)
+# better_evaluate = memoize(basic_evaluate)
 
 # Uncomment this line to make your better_evaluate run faster.
-# better_evaluate = memoize(better_evaluate)
+better_evaluate = memoize(better_evaluate)
 
 # For debugging: Change this if-guard to True, to unit-test
 # your better_evaluate function.
