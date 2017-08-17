@@ -31,8 +31,7 @@ def forward_checking(state, verbose=False):
                 passed = c.check(state, value_i=y, value_j=x)
             else:
                 passed = c.check(state, value_i=x, value_j=y)
-            if not passed:
-                Y.reduce_domain(y)
+            if not passed: Y.reduce_domain(y)
             if len(Y.get_domain()) == 0: return False
     return True
 
@@ -45,7 +44,28 @@ def forward_checking_prop_singleton(state, verbose=False):
         return False
 
     # Add your propagate singleton logic here.
-    raise NotImplementedError
+    q = [v for v in state.get_all_variables() if len(v.get_domain()) == 1]
+    visited = []
+    while len(q) > 0:
+        X = q.pop()
+        visited.append(X)
+        for c in state.get_constraints_by_name(X.get_name()):
+            Y_name     = c.get_variable_i_name()
+            i_is_y     = True
+            if Y_name  == X.get_name():
+                Y_name = c.get_variable_j_name()
+                i_is_y = False
+            Y = state.get_variable_by_name(Y_name)
+            for y in Y.get_domain():
+                if i_is_y:
+                    passed = c.check(state, value_i=y, value_j=X.get_domain()[0])
+                else:
+                    passed = c.check(state, value_i=X.get_domain()[0], value_j=y)
+                if not passed: Y.reduce_domain(y)
+                if len(Y.get_domain()) == 0: return False
+        q = [v for v in state.get_all_variables()
+             if len(v.get_domain()) == 1 and v not in visited]
+    return True
 
 ## The code here are for the tester
 ## Do not change.
