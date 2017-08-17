@@ -16,8 +16,25 @@ def forward_checking(state, verbose=False):
         return False
 
     # Add your forward checking logic here.
-    
-    raise NotImplementedError
+    X              = state.get_current_variable()
+    if X is None: return True
+    x              = X.get_assigned_value()
+    for c in state.get_constraints_by_name(X.get_name()):
+        Y_name     = c.get_variable_i_name()
+        i_is_y     = True
+        if Y_name  == X.get_name():
+            Y_name = c.get_variable_j_name()
+            i_is_y = False
+        Y = state.get_variable_by_name(Y_name)
+        for y in Y.get_domain():
+            if i_is_y:
+                passed = c.check(state, value_i=y, value_j=x)
+            else:
+                passed = c.check(state, value_i=x, value_j=y)
+            if not passed:
+                Y.reduce_domain(y)
+            if len(Y.get_domain()) == 0: return False
+    return True
 
 # Now Implement forward checking + (constraint) propagation through
 # singleton domains.
@@ -132,9 +149,9 @@ old_senator_classified = limited_house_classifier(last_senate_people, last_senat
 
 
 ## The standard survey questions.
-HOW_MANY_HOURS_THIS_PSET_TOOK = ""
-WHAT_I_FOUND_INTERESTING = ""
-WHAT_I_FOUND_BORING = ""
+HOW_MANY_HOURS_THIS_PSET_TOOK = "4"
+WHAT_I_FOUND_INTERESTING = "Solving the problems in the lab."
+WHAT_I_FOUND_BORING = "Answering these questions."
 
 
 ## This function is used by the tester, please don't modify it!
