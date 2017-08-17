@@ -107,7 +107,7 @@ senate_group1, senate_group2 = crosscheck_groups(senate_people)
 
 def euclidean_distance(list1, list2):
     # this is not the right solution!
-    return hamming_distance(list1, list2)
+    return math.sqrt(sum([pow(list1[i] - list2[i], 2) for i in xrange(len(list1))]))
 
 #Once you have implemented euclidean_distance, you can check the results:
 #evaluate(nearest_neighbors(euclidean_distance, 1), senate_group1, senate_group2)
@@ -116,8 +116,8 @@ def euclidean_distance(list1, list2):
 ## deals better with independents. Make a classifier that makes at most 3
 ## errors on the Senate.
 
-my_classifier = nearest_neighbors(hamming_distance, 1)
-#evaluate(my_classifier, senate_group1, senate_group2, verbose=1)
+my_classifier = nearest_neighbors(euclidean_distance, 5)
+evaluate(my_classifier, senate_group1, senate_group2, verbose=1)
 
 ### Part 2: ID Trees
 #print CongressIDTree(senate_people, senate_votes, homogeneous_disorder)
@@ -126,7 +126,17 @@ my_classifier = nearest_neighbors(hamming_distance, 1)
 ## which should lead to simpler trees.
 
 def information_disorder(yes, no):
-    return homogeneous_disorder(yes, no)
+    classes  = set(yes + no)
+    y_prop = float(len(yes)) / (len(yes) + len(no))
+    n_prop = float(len(no )) / (len(yes) + len(no))
+    yes_disorder = 0
+    no_disorder  = 0
+    for c in classes:
+        c_y = float(len([y for y in yes if y == c])) / len(yes)
+        c_n = float(len([n for n in no  if n == c])) / len(no)
+        if c_y != 0: yes_disorder += -1 * c_y * math.log(c_y, 2)
+        if c_n != 0: no_disorder += -1 * c_n * math.log(c_n, 2)
+    return yes_disorder * y_prop + no_disorder * n_prop
 
 #print CongressIDTree(senate_people, senate_votes, information_disorder)
 #evaluate(idtree_maker(senate_votes, homogeneous_disorder), senate_group1, senate_group2)
