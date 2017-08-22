@@ -200,11 +200,11 @@ class Neuron(DifferentiableElement):
                    break
            return o * (1 - o) * self.my_inputs[idx].output()
         else:
-           return o * (1 - o) * sum([
-               self.my_weights[i].get_value() * self.my_inputs[i].dOutdX(elem)
-               for i in xrange(len(self.my_weights))
-               if self.isadescendant_weight_of(self.my_inputs[i], elem)
-           ])
+           result = 0
+           for i in xrange(len(self.my_weights)):
+               if self.isa_descendant_weight_of(elem, self.my_weights[i]):
+                   result += self.my_weights[i].get_value() * self.my_inputs[i].dOutdX(elem)
+           return result * (o * (1 - o))
 
     def get_weights(self):
         return self.my_weights
@@ -349,7 +349,30 @@ def make_neural_net_two_layer():
     See 'make_neural_net_basic' for required naming convention for inputs,
     weights, and neurons.
     """
-    raise NotImplementedError, "Implement me!"
+    i0 = Input('i0', -1.0) # this input is immutable
+    i1 = Input('i1', 0.0)
+    i2 = Input('i2', 0.0)
+
+    seed_random()
+
+    w1A = Weight('w1A', random_weight())
+    w2A = Weight('w2A', random_weight())
+    wA  = Weight('wA', random_weight())
+
+    w1B = Weight('w1B', random_weight())
+    w2B = Weight('w2B', random_weight())
+    wB  = Weight('wB', random_weight())
+
+    wAC = Weight('wAC', random_weight())
+    wBC = Weight('wBC', random_weight())
+    wC  = Weight('wC', random_weight())
+
+    A = Neuron('A', [i1, i2, i0], [w1A, w2A, wA])
+    B = Neuron('B', [i1, i2, i0], [w1B, w2B, wB])
+    C = Neuron('C', [A, B, i0], [wAC, wBC, wC])
+    P = PerformanceElem(C, 1.0)
+    net = Network(P, [A, B, C])
+    return net
 
 def make_neural_net_challenging():
     """
