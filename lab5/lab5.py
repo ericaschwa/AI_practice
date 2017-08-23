@@ -37,18 +37,21 @@ boost_1796 = BoostClassifier(make_vote_classifiers(house_1796_votes),
 
 # You will need to train it, however. You can change the number of steps here.
 boost_1796.train(20)
-
 # Once you have run your boosting classifier for a sufficient number of steps
 # on the 4th House of Representatives data, it should tell you how it believes
 # Republicans and Federalists generally voted on a range of issues. Which way
 # does it predict a Republican would vote on the amendment to require
 # "newspapers to be sufficiently dried before mailing"? ('yes' or 'no')
-
-republican_newspaper_vote = 'answer yes or no'
+republican_newspaper_vote = 'no'
 
 # In the 4th House of Representatives, which five representatives were
 # misclassified the most while training your boost classifier?
-#
+# ['Dayton (New Jersey-98)',
+#  'Freeman (Massachusetts-5)',
+#  'Smith, S. (Maryland-5)',
+#  'Duval (Maryland-2)',
+#  'Skinner (Massachusetts-1)']
+
 # You should answer this question by defining the following function.
 # It should return five names of legislators, in the format that comes from
 # the legislator_info function. The tests will check the function, not just
@@ -69,11 +72,18 @@ def most_misclassified(classifier, n=5):
 	returns: list of data points (each passed through legislator_info) that were
 			 misclassified most often
     """
-    raise NotImplementedError
+    weight_map = {classifier.data_weights[i]: [] for i in xrange(len(classifier.data))}
+    for i in xrange(len(classifier.data)):
+        weight_map[classifier.data_weights[i]].append(classifier.data[i])
+    weights = sorted(classifier.data_weights)
+    datum = []
+    for weight in weights:
+        datum += weight_map[weight]
+    n_datum = datum[len(datum)-n:]
+    return [legislator_info(d) for d in n_datum]
 
 # The following line is used by the tester; please leave it in place!
 most_misclassified_boost_1796 = lambda n: most_misclassified(boost_1796, n)
-
 # print most_misclassified_boost_1796(5)
 
 # Now train a similar classifier on the 110th Senate (2007-2008).
@@ -83,7 +93,7 @@ most_misclassified_boost_1796 = lambda n: most_misclassified(boost_1796, n)
 boost = BoostClassifier(make_vote_classifiers(senate_votes), senate_people,
   standardPartyClassifier)
 boost.train(20)
-republican_sunset_vote = 'answer yes or no'
+republican_sunset_vote = 'no'
 
 # Which five Senators are the most misclassified after training your
 # classifier? (Again, the tester will test the function, not the answer you
@@ -93,6 +103,11 @@ republican_sunset_vote = 'answer yes or no'
 most_misclassified_boost = lambda n: most_misclassified(boost, n)
 
 # print most_misclassified_boost(5)
+#['Specter (Pennsylvania)',
+# 'Cantwell (Washington)',
+# 'Feingold (Wisconsin)',
+# 'Hagel (Nebraska)',
+# 'Johnson (South Dakota)']
 
 
 
@@ -210,33 +225,33 @@ if __name__ == "__main__":
 
 # For the vampire dataset, what variable does the id tree query, that our
 # algorithm in class did not?
-vampires_idtree_odd = "one of: shadow garlic complexion accent"
+vampires_idtree_odd = "accent"
 
 # For the vampire dataset, which classifier does the worst when tested on just
 # the data on which it was trained?
-vampires_worst_on_training = 'one of: maj dt knn svml svmp3 svmr svms nb'
+vampires_worst_on_training = 'svmr'
 # Is it actually doing badly, or is it just confused?
 
 # For the vampire dataset, which classifier does the worst when cross-validated?
-vampires_worst_on_test = 'one of: maj dt knn svml svmp3 svmr svms nb'
+vampires_worst_on_test = 'svms'
 
 
 # Which of the above classifiers has the best Brier distance to the true answers
 # in ten-fold cross-validation for the H004 dataset?
 
-best_brier_for_h004 = 'one of: maj dt knn svml svmp3 svmr svms nb'
+best_brier_for_h004 = 'svmp3'
 
 # Just looking at the confusion matrices, what is the minimum number
 # of data points that must have been differently classified between
 # the best classifier and the second-best classifier for the H004 data
 # set?
 
-min_disagreement_h004 = None
+min_disagreement_h004 = 2
 
 # Which bill was the most divisive along party lines in the H004 data
 # set, according to the classification tree (id tree)?
 
-most_divisive_h004 = 'a bill number'
+most_divisive_h004 = '2'
 
 
 
@@ -288,15 +303,16 @@ if __name__ == "__main__":
 # will give you the best cross-validation accuracy on the breast-cancer
 # dataset?
 
-classifiers_for_best_ensemble = ['maj', 'dt', 'knn', 'svml',
-                                 'svmp3', 'svmr', 'svms', 'nb']
+#classifiers_for_best_ensemble = ['maj', 'dt', 'knn', 'svml',
+#                                 'svmp3', 'svmr', 'svms', 'nb']
 
+classifiers_for_best_ensemble = ['nb', 'svmp3', 'maj', 'svms', 'svml']
 
 
 ## The standard survey questions.
-HOW_MANY_HOURS_THIS_PSET_TOOK = None
-WHAT_I_FOUND_INTERESTING = None
-WHAT_I_FOUND_BORING = None
+HOW_MANY_HOURS_THIS_PSET_TOOK = 4
+WHAT_I_FOUND_INTERESTING = 'Building the neural nets.'
+WHAT_I_FOUND_BORING = 'Answering these questions.'
 
 
 ## The following code is used by the tester; please leave it in place!
