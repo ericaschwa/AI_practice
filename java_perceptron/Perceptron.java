@@ -1,3 +1,10 @@
+/*
+       ATTENTION: this file is unfinished. It has been moved to a private repository to be
+       finished because it bears similarity to a school project and out of an abundance of
+       caution for academic integrity.
+*/
+
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
