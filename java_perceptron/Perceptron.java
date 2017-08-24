@@ -6,23 +6,24 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Scanner;
 
-public class CopyFile
+public class Perceptron
 {
     public static void main(String[] args)
     {
         try {
-            File file      = new File(args[0]);
-            Scanner input  = new Scanner(file);
-            int point_size = input.nextInt();
-            int num_points = input.nextInt();
-            int[][] points = new int[num_points][point_size];
+            File file        = new File(args[0]);
+            Scanner input    = new Scanner(file);
+            int point_size   = input.nextInt();
+            int num_points   = input.nextInt();
+            int[][] points   = new int[num_points][point_size + 1];
             for (int i = 0; i < num_points; i++) {
-                for (int j = 0; j < point_size; j++) {
-                    points[i][j] = input.nextInt();
+                points[i][0] = 1;
+                for (int j   = 0; j < point_size; j++) {
+                    points[i][j + 1] = input.nextInt();
                 }
             }
-            for (int i = 0; i < num_points; i++) {
-                for (int j = 0; j < point_size; j++) {
+            for (int i       = 0; i < num_points; i++) {
+                for (int j   = 0; j < point_size; j++) {
                     System.out.println(points[i][j]);
                 }
             }
